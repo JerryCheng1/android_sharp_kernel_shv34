@@ -181,6 +181,7 @@ obj-$(CONFIG_ESOC)		+= esoc/
 obj-$(CONFIG_BIF)		+= bif/
 obj-$(CONFIG_SHUB)		+= sharp/shsensor_hub/ml630q790/
 
+obj-$(CONFIG_SENSORS)		+= sensors/
 obj-$(CONFIG_SENSORS_SSC)	+= sensors/
 
 obj-$(CONFIG_TOUCHSCREEN_SHTPS) += sharp/shtps/

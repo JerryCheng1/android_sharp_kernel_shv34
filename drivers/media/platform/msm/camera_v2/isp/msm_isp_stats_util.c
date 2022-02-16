@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2016, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -68,7 +68,8 @@ static int msm_isp_stats_cfg_ping_pong_address(struct vfe_device *vfe_dev,
 	pingpong_bit = (~(pingpong_status >> stats_pingpong_offset) & 0x1);
 
 	rc = vfe_dev->buf_mgr->ops->get_buf(vfe_dev->buf_mgr,
-			vfe_dev->pdev->id, bufq_handle, &buf);
+			vfe_dev->pdev->id, bufq_handle,
+			MSM_ISP_INVALID_BUF_INDEX, &buf);
 	if (rc == -EFAULT) {
 		msm_isp_halt_send_error(vfe_dev, ISP_EVENT_BUF_FATAL_ERROR);
 		return rc;
@@ -249,6 +250,9 @@ static int32_t msm_isp_stats_buf_divert(struct vfe_device *vfe_dev,
 			*comp_stats_type_mask |=
 				1 << stream_info->stats_type;
 		}
+		stats_event->pd_stats_idx = 0xF;
+		if (stream_info->stats_type == MSM_ISP_STATS_BF)
+			stats_event->pd_stats_idx = vfe_dev->pd_buf_idx;
 	}
 
 	return rc;
@@ -855,6 +859,12 @@ int msm_isp_cfg_stats_stream(struct vfe_device *vfe_dev, void *arg)
 	struct msm_vfe_stats_stream_cfg_cmd *stream_cfg_cmd = arg;
 	if (vfe_dev->stats_data.num_active_stream == 0)
 		vfe_dev->hw_info->vfe_ops.stats_ops.cfg_ub(vfe_dev);
+
+	if (stream_cfg_cmd->num_streams > MSM_ISP_STATS_MAX) {
+		pr_err("%s invalid num_streams %d\n", __func__,
+			stream_cfg_cmd->num_streams);
+		return -EINVAL;
+	}
 
 	if (stream_cfg_cmd->enable) {
 		msm_isp_stats_update_cgc_override(vfe_dev, stream_cfg_cmd);
