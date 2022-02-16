@@ -197,7 +197,7 @@ static struct mdp_input_layer *__create_layer_list(
 	struct mdp_input_layer32 *layer_list32,
 	u32 layer_count)
 {
-	int i, ret;
+	int i, ret = 0;
 	u32 buffer_size;
 	struct mdp_input_layer *layer, *layer_list;
 	struct mdp_input_layer32 *layer32;
@@ -299,7 +299,7 @@ static int __compat_atomic_commit(struct fb_info *info, unsigned int cmd,
 	struct mdp_layer_commit  commit;
 	struct mdp_layer_commit32 commit32;
 	u32 layer_count;
-	struct mdp_input_layer *layer_list = NULL, *layer;
+	struct mdp_input_layer *layer_list = NULL;
 	struct mdp_input_layer32 *layer_list32 = NULL;
 	struct mdp_output_layer *output_layer = NULL;
 
@@ -370,8 +370,8 @@ static int __compat_atomic_commit(struct fb_info *info, unsigned int cmd,
 			argp, layer_count);
 
 	for (i = 0; i < layer_count; i++) {
-		kfree(layer[i].scale);
-		mdss_mdp_free_layer_pp_info(&layer[i]);
+		kfree(layer_list[i].scale);
+		mdss_mdp_free_layer_pp_info(&layer_list[i]);
 	}
 	kfree(layer_list);
 layer_list_err:
