@@ -2,7 +2,7 @@
  * Core MDSS framebuffer driver.
  *
  * Copyright (C) 2007 Google Incorporated
- * Copyright (c) 2008-2015, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2008-2016, The Linux Foundation. All rights reserved.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -3724,15 +3724,18 @@ int mdss_fb_perform_commit_for_recovery(void)
 	struct msm_fb_data_type *mfd;
 	struct fb_info *info = fbi_list[0];
 	int rtn = 0;
+	bool tmp_atomic_commit = false;
 	if (!info) 
 		return 0;
 
 	mfd = (struct msm_fb_data_type *)info->par;
 	atomic_inc(&mfd->mdp_sync_pt_data.commit_cnt);
+	tmp_atomic_commit = mfd->msm_fb_backup.atomic_commit;
 	mfd->msm_fb_backup.atomic_commit = last_atomic_commit;
 	mfd->kickoff_with_recovery = true;
 	rtn = __mdss_fb_perform_commit(mfd);
 	mfd->kickoff_with_recovery = false;
+	mfd->msm_fb_backup.atomic_commit = tmp_atomic_commit;
 	return rtn;
 }
 #endif /* CONFIG_SHDISP */
@@ -4129,8 +4132,8 @@ static int mdss_fb_async_position_update_ioctl(struct fb_info *info,
 	input_layer_list = update_pos.input_layers;
 
 	layer_cnt = update_pos.input_layer_cnt;
-	if (!layer_cnt) {
-		pr_err("no async layers to update\n");
+	if ((!layer_cnt) || (layer_cnt > MAX_LAYER_COUNT)) {
+		pr_err("invalid async layers :%d to update\n", layer_cnt);
 		return -EINVAL;
 	}
 
