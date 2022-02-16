@@ -183,9 +183,6 @@ obj-$(CONFIG_SHUB)		+= sharp/shsensor_hub/ml630q790/
 
 obj-$(CONFIG_SENSORS_SSC)	+= sensors/
 
-# <t-base drivers
-obj-$(CONFIG_MOBICORE_DRIVER)	+= gud/
-
 obj-$(CONFIG_TOUCHSCREEN_SHTPS) += sharp/shtps/
 # NFC/FeliCa driver
 obj-$(CONFIG_TOSHIBA_NFC)	+= sharp/nfc/
